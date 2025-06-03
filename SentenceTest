@@ -1,0 +1,72 @@
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class SentenceTest {
+  private Sentence simpleSentence;
+  private Sentence punctuationAtEnd;
+  private Sentence mergedSentence;
+  private Sentence empty;
+
+  @Before
+  public void setUp() {
+    // "Hello."
+    simpleSentence = new WordNode("Hello", new EmptyNode());
+
+    // "Hello, world!"
+    punctuationAtEnd = new WordNode("Hello",
+                             new PunctuationNode(",",
+                             new WordNode("world",
+                             new PunctuationNode("!",
+                             new EmptyNode()))));
+
+    // empty sentence
+    empty = new EmptyNode();
+
+    // merged: "Hello, world!" + " How are you?"
+    Sentence part2 = new WordNode("How",
+                        new WordNode("are",
+                        new WordNode("you",
+                        new PunctuationNode("?", new EmptyNode()))));
+    mergedSentence = punctuationAtEnd.merge(part2);
+  }
+
+  @Test
+  public void testGetNumberOfWords() {
+    assertEquals(1, simpleSentence.getNumberOfWords());
+    assertEquals(2, punctuationAtEnd.getNumberOfWords());
+    assertEquals(0, empty.getNumberOfWords());
+    assertEquals(5, mergedSentence.getNumberOfWords());
+  }
+
+  @Test
+  public void testLongestWord() {
+    assertEquals("Hello", simpleSentence.longestWord());
+    assertEquals("world", punctuationAtEnd.longestWord());
+    assertEquals("", empty.longestWord());
+    assertEquals("Hello", mergedSentence.longestWord());
+  }
+
+  @Test
+  public void testToString() {
+    assertEquals("Hello.", simpleSentence.toString());
+    assertEquals("Hello, world!", punctuationAtEnd.toString());
+    assertEquals(".", empty.toString());
+    assertEquals("Hello, world! How are you?", mergedSentence.toString());
+  }
+
+  @Test
+  public void testCloneIndependence() {
+    Sentence clone = punctuationAtEnd.clone();
+    assertNotSame(punctuationAtEnd, clone);
+    assertEquals(punctuationAtEnd.toString(), clone.toString());
+    assertEquals(punctuationAtEnd.getNumberOfWords(), clone.getNumberOfWords());
+  }
+
+  @Test
+  public void testMerge() {
+    Sentence merged = simpleSentence.merge(punctuationAtEnd);
+    assertEquals("Hello Hello, world!", merged.toString());
+    assertEquals(3, merged.getNumberOfWords());
+  }
+}
